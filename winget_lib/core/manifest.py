@@ -78,14 +78,14 @@ class Manifest:
                 stream.write(f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.{self.Singleton.ManifestVersion}.schema.json\n")
                 yaml.dump(self.Singleton.dict(exclude_none=True, exclude_unset=True), stream, Dumper=MyDumper, sort_keys=False, allow_unicode=True)
         else:
-            with open (path / f"{packageIdentifier}.{self.DefaultLocale.PackageLocale}.yaml", 'w', encoding="utf-8") as stream:
+            with open (path / f"{packageIdentifier}.locale.{self.DefaultLocale.PackageLocale}.yaml", 'w', encoding="utf-8") as stream:
                 stream.write(f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.{self.DefaultLocale.ManifestVersion}.schema.json\n")
                 yaml.dump(self.DefaultLocale.dict(exclude_none=True, exclude_unset=True), stream, Dumper=MyDumper, sort_keys=False, allow_unicode=True)
             with open (path / f"{packageIdentifier}.installer.yaml", 'w', encoding="utf-8") as stream:
                 stream.write(f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.{self.Installer.ManifestVersion}.schema.json\n")
                 yaml.dump(self.Installer.dict(exclude_none=True, exclude_unset=True), stream, Dumper=MyDumper, sort_keys=False, allow_unicode=True)
             for i in self.Locales:
-                with open (path / f"{packageIdentifier}.{i.PackageLocale}.yaml", 'w', encoding="utf-8") as stream:
+                with open (path / f"{packageIdentifier}.locale.{i.PackageLocale}.yaml", 'w', encoding="utf-8") as stream:
                     stream.write(f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.{i.ManifestVersion}.schema.json\n")
                     yaml.dump(i.dict(exclude_none=True, exclude_unset=True), stream, Dumper=MyDumper, sort_keys=False, allow_unicode=True)
             with open (path / f"{packageIdentifier}.yaml", 'w', encoding="utf-8") as stream:
