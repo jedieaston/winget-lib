@@ -2,7 +2,7 @@ from enum import Enum
 from glob import glob
 from typing import List
 from pathlib import Path
-from core.winget import defaultLocale, installer, locale, singleton, version
+from winget_lib.core.winget import defaultLocale, installer, locale, singleton, version
 import yaml
 
 class MyDumper(yaml.SafeDumper):
