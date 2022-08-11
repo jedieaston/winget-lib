@@ -32,7 +32,6 @@ def downloadFileSync(url: str, path: Path = None) -> Path:
                 f.write(chunk)
                 progress.update(download, advance=1024)
         return path
-
 def getSha256Hash(path: Path) -> str:
     """
     Given the path to a file, get the SHA256 hash of that file.

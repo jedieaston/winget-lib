@@ -60,7 +60,7 @@ class Manifest:
         else:
             return "multifile"
     
-    def writeToFolder(self, path: Path = None) -> Path:
+    def writeToFolder(self, path: Path = None, manifestsFolderLocation: Path = None) -> Path:
         """Write the manifest to a path (or the manifests folder if no path is specified)."""
         packageIdentifier = self.getPackageIdentifier()
         packageVersion = self.getPackageVersion()
@@ -70,8 +70,15 @@ class Manifest:
             pathParts.extend(packageIdentifier.split('.'))
             pathParts.append(packageVersion)
             path = Path("manifests/" + "/".join(pathParts))
+            if (manifestsFolderLocation is not None):
+                path = manifestsFolderLocation / path
         path.mkdir(parents=True, exist_ok=True)
-
+        # Denormalize InstallerTypes.
+        if (self.Installer is not None and self.Installer.InstallerType is not None):
+            for i in self.Installer.Installers:
+                if (i.InstallerType is None):
+                    i.InstallerType = self.Installer.InstallerType
+            self.Installer.InstallerType = None
         # Write the files.
         if (self.getManifestType() == "singleton"):
             with open (path / f"{packageIdentifier}.yaml", 'w', encoding="utf-8") as stream:
@@ -103,6 +110,8 @@ def readManifestFromFolder(folder: Path) -> Manifest:
         with open(file, 'r', encoding="utf-8") as stream:
             try:
                 manifestFile = yaml.safe_load(stream)
+                if (manifestFile["ManifestVersion"] != "1.2.0"):
+                    manifestFile["ManifestVersion"] = "1.2.0"
                 if (manifestFile["ManifestType"].lower() == "singleton"):
                     # If it's a singleton, then we only need to load this file.
                     manifest.Singleton = singleton.Model(**manifestFile)
@@ -120,3 +129,11 @@ def readManifestFromFolder(folder: Path) -> Manifest:
             except:
                 raise Exception("Error reading manifest file: " + str(file))
     return manifest
+def readManifestByIdentifierAndVersion(packageIdentifier: str, packageVersion: str, manifestsFolderRoot: Path = None) -> Manifest:
+    pathParts = [packageIdentifier[0].lower()]
+    pathParts.extend(packageIdentifier.split('.'))
+    pathParts.append(packageVersion)
+    path = Path("manifests/" + "/".join(pathParts))
+    if (manifestsFolderRoot is not None):
+        path = manifestsFolderRoot / path
+    return readManifestFromFolder(path)
