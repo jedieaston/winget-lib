@@ -17,6 +17,7 @@ class Manifest:
     Locales: List[locale.Model] = []
     Singleton: singleton.Model = None
     Version: version.Model = None
+    Path: Path = None
 
     def getPackageVersion(self) -> str:
         """Get the package version across all of the manifest's files."""
@@ -104,9 +105,14 @@ class Manifest:
 
 
 def readManifestFromFolder(folder: Path) -> Manifest:
+    """Read a manifest from a folder."""
     manifest = Manifest()
     manifest.Locales = []
-    for file in folder.glob('*.yaml'):
+    files = list(folder.glob('*.yaml'))
+    if (len(files) == 0):
+        raise "This folder does not contain any yaml files :("
+    manifest.Path = folder
+    for file in files:
         with open(file, 'r', encoding="utf-8") as stream:
             try:
                 manifestFile = yaml.safe_load(stream)
@@ -130,6 +136,7 @@ def readManifestFromFolder(folder: Path) -> Manifest:
                 raise Exception("Error reading manifest file: " + str(file))
     return manifest
 def readManifestByIdentifierAndVersion(packageIdentifier: str, packageVersion: str, manifestsFolderRoot: Path = None) -> Manifest:
+    """Given a package identifier and a version, find the manifest in the manifests folder (you can set the root of the manifests folder too, if it's not the current directory)"""
     pathParts = [packageIdentifier[0].lower()]
     pathParts.extend(packageIdentifier.split('.'))
     pathParts.append(packageVersion)
@@ -137,3 +144,16 @@ def readManifestByIdentifierAndVersion(packageIdentifier: str, packageVersion: s
     if (manifestsFolderRoot is not None):
         path = manifestsFolderRoot / path
     return readManifestFromFolder(path)
+def getAllManifestsForIdentifier(packageIdentifier: str, manifestsFolderRoot: Path = None) -> List[Manifest]:
+    """Given a package identifier, get a list of manifests from the manifests folder. Optionally, you can provide the manifestsFolderRoot if it isn't the current directory."""
+    pathParts = [packageIdentifier[0].lower()]
+    pathParts.extend(packageIdentifier.split('.'))
+    path = Path("manifests/" + "/".join(pathParts))
+    if (manifestsFolderRoot is not None):
+        path = manifestsFolderRoot / path
+    allFolders = list(path.glob("*"))
+    allManifestFolders = list(filter(lambda x: len(list(x.glob("*.yaml"))) > 0, allFolders))
+    manifests = []
+    for i in allManifestFolders:
+        manifests.append(readManifestFromFolder(i))
+    return manifests

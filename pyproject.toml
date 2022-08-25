@@ -11,6 +11,8 @@ PyYAML = "^6.0"
 typer = {extras = ["all"], version = "^0.4.2"}
 rich = "^12.4.4"
 requests = "^2.28.1"
+GitPython = "^3.1.27"
+PyGithub = "^1.55"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
